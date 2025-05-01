@@ -1,7 +1,7 @@
 import argparse
-from agents.train_ppo import train_ppo
-from agents.train_emotion_mod import train_emotion_mod
-from agents.train_emotive_rl import train_emotive_rl
+from train_ppo import train_ppo
+from train_emotion_mod import train_emotion_mod
+from train_emotive_rl import train_emotive_rl
 
 agent_map = {
     "ppo": train_ppo,
