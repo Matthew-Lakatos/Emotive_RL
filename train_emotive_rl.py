@@ -39,8 +39,12 @@ def train_emotive_rl(env_name):
             action, log_prob, dist = policy.get_action(state_tensor)
             value = value_fn(state_tensor)
 
-            next_state, reward, done, _ = env.step(action.detach().numpy())
+            # Ensure correct shape and type for MuJoCo step
+            action_np = action.squeeze(0).detach().numpy().astype(np.float32)
+            next_state, reward, terminated, truncated, _ = env.step(action_np)
+            done = terminated or truncated
 
+            # Emotion prediction and modulation
             emotion_input = state_tensor.unsqueeze(0)
             emotion_pred = emotion_model(emotion_input)
             true_emotion = torch.norm(torch.FloatTensor(next_state) - state_tensor.squeeze()).unsqueeze(0)
@@ -58,6 +62,7 @@ def train_emotive_rl(env_name):
             masks.append(torch.tensor([1 - done], dtype=torch.float32))
             emotion_inputs.append(emotion_input)
 
+            # Train emotion model
             emotion_loss = (emotion_pred - true_emotion).pow(2).mean()
             optimizer_emotion.zero_grad()
             emotion_loss.backward()
@@ -100,3 +105,4 @@ def train_emotive_rl(env_name):
         print(f"[Emotive RL] Episode {episode} | Reward: {ep_reward:.2f}")
 
     env.close()
+
