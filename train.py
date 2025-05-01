@@ -1,8 +1,8 @@
 import gym
 import torch
-from models.predictive_emotion import PredictiveEmotion
-from models.neuromodulator import modulate_reward
-from agents.emotion_ppo import adjusted_advantage
+from predictive_emotion import PredictiveEmotion
+from neuromodulator import modulate_reward
+from emotion_ppo import adjusted_advantage
 
 # Example environment
 env = gym.make("HalfCheetah-v2")
