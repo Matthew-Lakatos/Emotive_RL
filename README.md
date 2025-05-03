@@ -1,0 +1,4 @@
+- Algorithm for a Neuromorphic mood embedding, predictive emotion dynamic RL agent
+- Created for the sole purpose of research on my publication
+- I thank the dedicated and talented MuJoCo and Pytorch contributors and creators for making this project possible
+- Please ignore the p.py module - created by accident with no functionality
