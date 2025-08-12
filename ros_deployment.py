@@ -1,4 +1,5 @@
-Features:
+"""
+features:
 - Captures camera frames (uses DeepFace or OpenFace if installed; otherwise a simple stub).
 - Records short audio and computes a spectral-entropy-based stress proxy.
 - Fuses face valence + audio entropy into a single emotion scalar every `publish_interval` seconds.
