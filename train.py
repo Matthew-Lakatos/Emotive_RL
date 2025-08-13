@@ -1,39 +1,51 @@
-import gym
+import argparse
+import importlib
 import torch
-from predictive_emotion import PredictiveEmotion
-from neuromodulator import modulate_reward
-from emotion_ppo import adjusted_advantage
+import numpy as np
 
-# Example environment
-env = gym.make("HalfCheetah-v2")
-state_dim = env.observation_space.shape[0]
+from agents.agent_ppo import PPOAgent
+from agents.agent_emotion_mod import EmotionModAgent
+from agents.agent_emotive_rl import EmotiveRLAgent
 
-# Placeholder agent model (to be implemented)
-class PPOAgent:
-    def get_action(self, state):
-        return env.action_space.sample()
+AGENT_CLASSES = {
+    "ppo": PPOAgent,
+    "emotion_mod": EmotionModAgent,
+    "emotive_rl": EmotiveRLAgent
+}
 
-    def update(self, transition_batch):
-        pass  # Include adjusted_advantage() here in real code
+def train_agent(agent_name, env_name, episodes=500):
+    # Load env dynamically
+    env_module = importlib.import_module(f"experiments.{env_name}")
+    env = env_module.make_env()
 
-emotion_model = PredictiveEmotion(input_dim=state_dim, hidden_dim=64)
-agent = PPOAgent()
+    # Create agent
+    AgentClass = AGENT_CLASSES[agent_name]
+    state_size = env.reset().shape[0]
+    action_size = 2  # simple assumption; could be env.action_space.n
+    agent = AgentClass(state_size, action_size)
 
-# Dummy training loop
-for episode in range(10):
-    state = env.reset()
-    done = False
-    states = []
+    for ep in range(episodes):
+        state = env.reset()
+        ep_reward = 0
+        done = False
+        while not done:
+            action = agent.act(state)
+            next_state, reward, done, _ = env.step(action)
+            agent.learn(state, action, reward, next_state, done)
+            state = next_state
+            ep_reward += reward
+        if (ep+1) % 50 == 0:
+            print(f"[{agent_name} | {env_name}] Episode {ep+1}/{episodes} Reward: {ep_reward:.2f}")
 
-    while not done:
-        action = agent.get_action(state)
-        next_state, reward, done, _ = env.step(action)
-        
-        # Placeholder: using state difference as emotion proxy
-        emotion_input = torch.tensor([state], dtype=torch.float32).unsqueeze(0)
-        e_hat = emotion_model(emotion_input)
-        
-        modulated_reward = modulate_reward(torch.tensor([reward]), e_hat)
-        states.append(state)
+    # Save model
+    torch.save(agent.policy.state_dict(), f"models/{agent_name}_{env_name}.pt")
+    print(f"Model saved to models/{agent_name}_{env_name}.pt")
 
-        state = next_state
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--agent", required=True, choices=AGENT_CLASSES.keys())
+    parser.add_argument("--env", required=True)
+    parser.add_argument("--episodes", type=int, default=500)
+    args = parser.parse_args()
+
+    train_agent(args.agent, args.env, args.episodes)
