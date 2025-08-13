@@ -23,21 +23,19 @@ https://github.com/De-Imam/Emotive_RL
 - Predictive emotion module using GRU-based RNNs
 - Neuromodulatory reward shaping
 - ROS deployment support for real-world robots
-- Tools for visualization and experimentation
 
 ## Directory Structure
 
 ```
 Emotive_RL-main/
-├── emotion_ppo.py          # PPO agent with emotional neuromodulation
-├── neuromodulator.py       # Simulates neurotransmitter dynamics
-├── predictive_emotion.py   # GRU-based predictive emotion model
-├── train_emotion_mod.py    # Main training script with emotion features
-├── train.py                # Baseline PPO training
-├── run_experiment.py       # Command-line interface for experiment control
-├── ros_deployment.py       # ROS integration and deployment
-├── plot_results.py         # Plot and analyze training curves
-├── README.md               # Markdown README version
+|-- emotion_ppo.py          # PPO agent with emotional neuromodulation
+|-- neuromodulator.py       # Simulates neurotransmitter dynamics
+|-- predictive_emotion.py   # GRU-based predictive emotion model
+|-- train.py                # Baseline PPO training
+|-- run_experiment.py       # Command-line interface for experiment control
+|-- ros_deployment.py       # ROS integration and deployment
+|-- plot_results.py         # Plot and analyze training curves
+|-- README.md               # Markdown README version
 ```
 
 ## Requirements
@@ -45,7 +43,6 @@ Emotive_RL-main/
 - Python 3.8+
 - PyTorch
 - NumPy
-- Matplotlib
 - Gym (for simulation environments)
 - ROS (optional, for real-world deployment)
 
