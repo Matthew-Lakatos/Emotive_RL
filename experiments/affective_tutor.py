@@ -1,29 +1,28 @@
-import random
+# experiments/affective_tutor.py
+import numpy as np
 
-def run():
-    student_perf = 0.5
-    mood = 0.5
-    alignment = 0
+class AffectiveTutorEnv:
+    def __init__(self, max_steps=20):
+        self.max_steps = max_steps
 
-    for lesson in range(50):
-        if student_perf > 0.6 and mood > 0.5:
-            style = 'supportive'
-        elif mood < 0.3:
-            style = 'harsh'
-        else:
-            style = 'neutral'
+    def reset(self):
+        self.steps = 0
+        self.mood = np.random.rand()
+        self.knowledge = np.random.rand()
+        return np.array([self.mood, self.knowledge], dtype=np.float32)
 
-        if style == 'supportive':
-            student_perf += 0.05
-            alignment += 2
-        elif style == 'harsh':
-            student_perf -= 0.02
-            alignment -= 1
-        else:
-            alignment += 0.5
+    def step(self, action):
+        reward = 0.0
+        if action == 0:
+            self.mood = min(1.0, self.mood + 0.1)
+            reward += 0.5
+        elif action == 1:
+            self.knowledge = min(1.0, self.knowledge + 0.1)
+            reward += 1.0 if self.mood > 0.5 else -0.5
 
-        student_perf = max(0, min(student_perf + random.uniform(-0.05, 0.05), 1))
-        mood += random.uniform(-0.1, 0.1)
-        mood = max(0, min(mood, 1))
+        self.steps += 1
+        done = self.steps >= self.max_steps
+        return np.array([self.mood, self.knowledge], dtype=np.float32), reward, done, {}
 
-    return min(max(int(alignment * 2), 0), 100)
+def make_env():
+    return AffectiveTutorEnv()
