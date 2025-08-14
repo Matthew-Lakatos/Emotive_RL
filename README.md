@@ -60,4 +60,9 @@ Install all dependencies:
 pip install -r requirements.txt
 ```
 
-To 
+To train each model (designed to enable copy-paste):
+```python
+python train.py --agent ppo --env affective_tutor --episodes 1000
+python train.py --agent emotive_rl --env affective_tutor --episodes 1000
+```
+
