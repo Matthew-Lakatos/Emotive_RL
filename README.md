@@ -7,8 +7,7 @@
 
 This project is based on the supplementary study:
 **"Predictive Emotion Dynamics and Neuromorphic Mood Embeddings in Reinforcement Learning Agents"**  
-Matthew Lakatos (2025)  
-https://github.com/De-Imam/Emotive_RL
+Matthew Lakatos (2025)
 
 ## Core Concepts
 
@@ -34,8 +33,17 @@ Emotive_RL-main/
 |-- train.py                # Baseline PPO training
 |-- run_experiment.py       # Command-line interface for experiment control
 |-- ros_deployment.py       # ROS integration and deployment
-|-- plot_results.py         # Plot and analyze training curves
 |-- README.md               # Markdown README version
+    Emotive_RL-main/experiments/
+    |-- affective_tutor.py
+    |-- conflict_resolution.py
+    |-- emotion_exploration.py
+    |-- human_in_loop_co_creation.py
+    |-- long_haul_mission.py
+    |-- resource_gathering.py
+    |-- social_navigation.py
+        Emotive_RL-main/experiments/results/
+        |-- result_table
 ```
 
 ## Requirements
@@ -44,9 +52,12 @@ Emotive_RL-main/
 - PyTorch
 - NumPy
 - Gym (for simulation environments)
-- ROS (optional, for real-world deployment)
+- ROS
 
 Install all dependencies:
 
 ```bash
 pip install -r requirements.txt
+```
+
+To 
