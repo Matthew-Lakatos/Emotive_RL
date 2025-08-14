@@ -61,8 +61,33 @@ pip install -r requirements.txt
 ```
 
 To train each model (designed to enable copy-paste):
+
 ```python
 python train.py --agent ppo --env affective_tutor --episodes 1000
+python train.py --agent ppo --env affective_tutor --episodes 1000
+python train.py --agent ppo --env affective_tutor --episodes 1000
+python train.py --agent ppo --env affective_tutor --episodes 1000
+python train.py --agent ppo --env affective_tutor --episodes 1000
+python train.py --agent ppo --env affective_tutor --episodes 1000
+python train.py --agent ppo --env affective_tutor --episodes 1000
 python train.py --agent emotive_rl --env affective_tutor --episodes 1000
+python train.py --agent emotive_rl --env affective_tutor --episodes 1000
+python train.py --agent emotive_rl --env affective_tutor --episodes 1000
+python train.py --agent emotive_rl --env affective_tutor --episodes 1000
+python train.py --agent emotive_rl --env affective_tutor --episodes 1000
+python train.py --agent emotive_rl --env affective_tutor --episodes 1000
+python train.py --agent emotive_rl --env affective_tutor --episodes 1000
+python train.py --agent emotion_mod --env affective_tutor --episodes 1000
+python train.py --agent emotion_mod --env affective_tutor --episodes 1000
+python train.py --agent emotion_mod --env affective_tutor --episodes 1000
+python train.py --agent emotion_mod --env affective_tutor --episodes 1000
+python train.py --agent emotion_mod --env affective_tutor --episodes 1000
+python train.py --agent emotion_mod --env affective_tutor --episodes 1000
+python train.py --agent emotion_mod --env affective_tutor --episodes 1000
 ```
 
+To run each experiment (benchmark testing after 1000 episodes):
+
+```python
+python run_experiment.py
+```
