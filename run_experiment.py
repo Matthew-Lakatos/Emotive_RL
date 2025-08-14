@@ -15,12 +15,12 @@ AGENT_CLASSES = {
 
 EXPERIMENTS = [
     "affective_tutor",
-    "affective_virtual_partner",
-    "emotion_based_game_ai",
-    "emotion_driven_storytelling",
-    "emotional_robot_control",
-    "empathy_chatbot",
-    "therapeutic_ai"
+    "conflict_resolution",
+    "emotion_exploration",
+    "human_in_loop_co_creation",
+    "long_haul_mission",
+    "resource_gathering",
+    "social_navigation"
 ]
 
 def evaluate(agent_name, env_name, episodes=20):
