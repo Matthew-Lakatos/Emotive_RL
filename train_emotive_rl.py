@@ -4,9 +4,9 @@ import torch.optim as optim
 import gym
 import numpy as np
 
-from emotion_model.predictive_emotion import PredictiveEmotion
-from neuromodulation.modulator import modulate_reward
-from rl_agent.advantage_adjust import adjusted_advantage
+from predictive_emotion import PredictiveEmotion
+from neuromodulator import modulate_reward
+from adjusted_advantage import adjusted_advantage
 
 # --------- Policy and Value Networks for PPO ---------
 class PolicyNetwork(nn.Module):
