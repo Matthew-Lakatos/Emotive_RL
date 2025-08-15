@@ -10,7 +10,7 @@ def run_with_agent_class(agent_module_name, agent_class_name, env_name, episodes
     env = getattr(env_module, env_name)()
 
     state_size = env.observation_space.shape[0]
-    action_size = env.action_space.n
+    action_size = env.action_space_n
 
     # dynamically import the agent class
     module = importlib.import_module(agent_module_name)
