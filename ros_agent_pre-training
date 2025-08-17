@@ -1,0 +1,75 @@
+import os
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import torch.nn.functional as F
+import random
+import numpy as np
+
+# ---- Hyperparameters ----
+obs_size = 10
+num_actions = 3
+hidden_size = 64
+learning_rate = 3e-4
+num_episodes = 500
+episode_length = 25
+
+# ---- Policy Network ----
+class EmotionPolicy(nn.Module):
+    def __init__(self, obs_size, hidden_size, num_actions):
+        super().__init__()
+        self.fc1 = nn.Linear(obs_size, hidden_size)
+        self.fc2 = nn.Linear(hidden_size, num_actions)
+
+    def forward(self, x):
+        x = torch.tanh(self.fc1(x))
+        return F.softmax(self.fc2(x), dim=-1)
+
+policy = EmotionPolicy(obs_size, hidden_size, num_actions)
+optimizer = optim.Adam(policy.parameters(), lr=learning_rate)
+
+# ---- Simulated Environment Step ----
+def environment_step(observation, action):
+    # Simulate a "predicted" observation
+    prediction = np.random.rand(obs_size)
+    mismatch = np.linalg.norm(observation - prediction)
+
+    # Reward structure
+    if mismatch < 0.3:
+        reward = 1.0  # satisfaction
+    elif mismatch > 0.7:
+        reward = -1.0 # anxiety
+    else:
+        reward = 0.0
+
+    # Next observation is random
+    next_obs = np.random.rand(obs_size).astype(np.float32)
+    return next_obs, reward
+
+# ---- Training Loop ----
+for episode in range(num_episodes):
+    obs = np.random.rand(obs_size).astype(np.float32)
+    log_probs = []
+    rewards = []
+
+    for t in range(episode_length):
+        obs_tensor = torch.FloatTensor(obs)
+        action_probs = policy(obs_tensor)
+        distribution = torch.distributions.Categorical(action_probs)
+        action = distribution.sample()
+        log_probs.append(distribution.log_prob(action))
+
+        obs, reward = environment_step(obs, action.item())
+        rewards.append(reward)
+
+    # REINFORCE update
+    total_reward = sum(rewards)
+    loss = -torch.stack(log_probs).sum() * total_reward
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+
+# ---- Save the trained policy ----
+output_path = '/mnt/data/emotion_rl.pt'
+torch.save(policy.state_dict(), output_path)
+print(f"Model saved to {output_path}")
