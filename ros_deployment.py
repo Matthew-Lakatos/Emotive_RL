@@ -23,7 +23,6 @@ import threading
 import rospy
 from std_msgs.msg import Float32, Float32MultiArray
 
-# Optional libs
 try:
     import cv2
 except Exception:
@@ -35,7 +34,6 @@ except Exception:
     sd = None
 
 try:
-    # DeepFace (if available) is simpler to call than OpenFace in Python
     from deepface import DeepFace
     DEEPFACE_AVAILABLE = True
 except Exception:
@@ -43,15 +41,11 @@ except Exception:
 
 try:
     import torch
-    from predictive_emotion import PredictiveEmotion  # local module in repo
+    from predictive_emotion import PredictiveEmotion
     TORCH_AVAILABLE = True
 except Exception:
     TORCH_AVAILABLE = False
 
-# Where logs go
-LOG_DIR = os.path.join(os.path.dirname(__file__), "logs")
-os.makedirs(LOG_DIR, exist_ok=True)
-LOG_FILE = os.path.join(LOG_DIR, "emotion_log.json")
 
 # Simple sliding window for smoothing
 SMOOTH_WINDOW = 5
@@ -76,15 +70,11 @@ def compute_audio_entropy(samples, samplerate):
     if total <= 0:
         return 0.0
     p = power / total
-    # spectral entropy
     eps = 1e-12
     entropy = -np.sum(p * np.log(p + eps))
     return float(entropy)
 
 
-# -------------------------
-# Utility: face valence via DeepFace (or stub)
-# -------------------------
 def analyze_frame_valence(frame_bgr):
     """
     Analyze a BGR OpenCV frame and return a valence score in [-1, 1]
@@ -122,18 +112,6 @@ def analyze_frame_valence(frame_bgr):
         return float(max(-1.0, min(1.0, valence))), {"stub": True, "mean_intensity": mean_intensity}
     except Exception:
         return 0.0, {"stub": True}
-
-
-# -------------------------
-# JSON Logging
-# -------------------------
-def append_json_log(entry, filepath=LOG_FILE):
-    try:
-        with open(filepath, "a") as f:
-            json.dump(entry, f)
-            f.write("\n")
-    except Exception as e:
-        rospy.logerr(f"Failed to write log entry: {e}")
 
 
 # -------------------------
