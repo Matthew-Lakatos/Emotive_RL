@@ -1,4 +1,4 @@
-"""
+""" # unfinished! highly unstable!
 features:
 - Captures camera frames (uses DeepFace or OpenFace if installed; otherwise a simple stub).
 - Records short audio and computes a spectral-entropy-based stress proxy.
