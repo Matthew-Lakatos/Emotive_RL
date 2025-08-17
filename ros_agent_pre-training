@@ -1,3 +1,5 @@
+# NOT NOVEL! NEEDS REFACTORING TO INCLUDE FEP AND BBT
+
 import os
 import torch
 import torch.nn as nn
@@ -6,7 +8,17 @@ import torch.nn.functional as F
 import random
 import numpy as np
 
-# ---- Hyperparameters ----
+# Observation size	10 (vector of sensory inputs)
+# Action space	3 discrete actions
+# Hidden layer size	64
+# Neuromodulator signals	Surprise, Anxiety, Satisfaction (scalar per step)
+# RL algorithm	Policy Gradient (REINFORCE)
+# Environment	Synthetic: random sensory inputs with mismatch/reward signals
+# Training episodes	500
+# Learning rate	3e-4
+# Optimization	Adam
+
+# Hyperparameters
 obs_size = 10
 num_actions = 3
 hidden_size = 64
@@ -14,7 +26,7 @@ learning_rate = 3e-4
 num_episodes = 500
 episode_length = 25
 
-# ---- Policy Network ----
+# Policy Network
 class EmotionPolicy(nn.Module):
     def __init__(self, obs_size, hidden_size, num_actions):
         super().__init__()
@@ -28,7 +40,7 @@ class EmotionPolicy(nn.Module):
 policy = EmotionPolicy(obs_size, hidden_size, num_actions)
 optimizer = optim.Adam(policy.parameters(), lr=learning_rate)
 
-# ---- Simulated Environment Step ----
+# Simulated Environment Step
 def environment_step(observation, action):
     # Simulate a "predicted" observation
     prediction = np.random.rand(obs_size)
@@ -46,7 +58,7 @@ def environment_step(observation, action):
     next_obs = np.random.rand(obs_size).astype(np.float32)
     return next_obs, reward
 
-# ---- Training Loop ----
+# Training Loop
 for episode in range(num_episodes):
     obs = np.random.rand(obs_size).astype(np.float32)
     log_probs = []
@@ -69,7 +81,7 @@ for episode in range(num_episodes):
     loss.backward()
     optimizer.step()
 
-# ---- Save the trained policy ----
+# Save the trained policy
 output_path = '/mnt/data/emotion_rl.pt'
 torch.save(policy.state_dict(), output_path)
 print(f"Model saved to {output_path}")
