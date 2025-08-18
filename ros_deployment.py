@@ -1,14 +1,12 @@
-""" # unfinished! highly unstable!
-features:
-- Captures camera frames (uses DeepFace or OpenFace if installed; otherwise a simple stub).
-- Records short audio and computes a spectral-entropy-based stress proxy.
-- Fuses face valence + audio entropy into a single emotion scalar every `publish_interval` seconds.
-- Publishes:
-    - /emotion_scalar (std_msgs/Float32)    -- scalar emotional modulation
-    - /agent/belief (std_msgs/Float32MultiArray) -- fused belief vector (example format)
-- Logs JSON entries for each emission to logs/emotion_log.json for ethical auditing.
-- Optionally loads a saved PyTorch PredictiveEmotion model and uses it to refine the scalar.
-"""
+# unfinished! highly unstable!
+
+# features:
+# - Captures camera frames (uses DeepFace or OpenFace if installed)
+# - Records short audio and computes a spectral entropy based stress proxy.
+# - Combines face valence + audio entropy into a single emotion scalar every 2 seconds.
+# - [WIP] Should output json logs to accomodate for ethical purposes
+# - Optionally loads a saved PyTorch PredictiveEmotion model and uses it to refine the scalar.
+
 
 import os
 import json
@@ -86,11 +84,11 @@ def analyze_frame_valence(frame_bgr):
     # Try deepface if installed
     if DEEPFACE_AVAILABLE:
         try:
-            # DeepFace.analyze expects RGB in some versions; we'll pass frame and let it handle
+            # if RGB needs to be addressed
             analysis = DeepFace.analyze(frame_bgr, actions=["emotion"], enforce_detection=False)
-            # analysis["emotion"] is dict of emotion->score
+            # analysis["emotion"] = score
             emotions = analysis.get("emotion", {})
-            # compute valence: (positive - negative) normalized
+            # valence = (positive - negative)
             positive = emotions.get("happy", 0.0) + emotions.get("surprise", 0.0)
             negative = emotions.get("sad", 0.0) + emotions.get("angry", 0.0) + emotions.get("fear", 0.0) + emotions.get("disgust", 0.0)
             if (positive + negative) == 0:
@@ -102,7 +100,6 @@ def analyze_frame_valence(frame_bgr):
             return float(valence), emotions
         except Exception as e:
             rospy.logwarn_throttle(30, f"DeepFace analysis failed: {e}")
-            # fallback to stub below
     # Fallback heuristic: simple brightness-based proxy (NOT a real emotion model)
     try:
         # convert to grayscale mean intensity -> map to [-1,1]
@@ -124,12 +121,11 @@ class EmotionNode:
                  audio_samplerate=16000,
                  audio_duration=1.0,
                  publish_interval=2.0):
-        """
-        model_path: optional path to a saved PredictiveEmotion model (pytorch .pt)
-        camera_index: camera device index for OpenCV
-        audio_*: audio recording params
-        publish_interval: seconds between publishes (paper: 2 seconds)
-        """
+                     
+        # model_path: optional to a predictive emotion model (pytorch .pt)
+        # camera_index = camera device index for OpenCV
+        # audio_* = audio params
+                     
         rospy.init_node("emotion_agent_node", anonymous=False)
 
         self.pub_scalar = rospy.Publisher("/emotion_scalar", Float32, queue_size=10)
@@ -157,12 +153,12 @@ class EmotionNode:
         if not self.sd_available:
             rospy.logwarn("sounddevice not available; audio-based stress inference disabled.")
 
-        # Load optional predictive emotion model (if provided)
+        # if predictive emotion model provided
         self.emotion_model = None
         if model_path and TORCH_AVAILABLE and os.path.exists(model_path):
             try:
-                # assume the saved file contains state_dict for PredictiveEmotion
-                model = PredictiveEmotion(input_dim=8, hidden_dim=32)  # input_dim depends on your feature design
+                # assume the saved file contains state of predictive emotion
+                model = PredictiveEmotion(input_dim=8, hidden_dim=32)
                 model.load_state_dict(torch.load(model_path, map_location="cpu"))
                 model.eval()
                 self.emotion_model = model
@@ -170,12 +166,12 @@ class EmotionNode:
             except Exception as e:
                 rospy.logwarn(f"Failed to load emotion model: {e}")
 
-        # Smoothing buffers
+        # some rndom buffers
         self.valence_history = deque(maxlen=SMOOTH_WINDOW)
         self.audio_entropy_history = deque(maxlen=SMOOTH_WINDOW)
         self.fused_history = deque(maxlen=SMOOTH_WINDOW)
 
-        # Start worker thread to run sampling loop (so ROS spin doesn't block)
+        # Debug feature implemented by ChatGPT
         self._stop_event = threading.Event()
         self.worker_thread = threading.Thread(target=self._run_loop, daemon=True)
         self.worker_thread.start()
@@ -189,10 +185,7 @@ class EmotionNode:
         return frame
 
     def _record_audio(self, duration):
-        """
-        Records `duration` seconds of audio and returns a numpy array of samples.
-        If sounddevice isn't available, returns None.
-        """
+        # records 2 seconds of audio
         if not self.sd_available:
             return None
         try:
@@ -205,12 +198,8 @@ class EmotionNode:
             return None
 
     def _fuse_signals(self, valence, audio_entropy):
-        """
-        Fuse valence ([-1,1]) and audio_entropy (>=0) into a single scalar in [-1,1]
-        - Normalize audio entropy by recent typical range (this is heuristic; adjust per deployment)
-        - Use weighted sum and tanh to bound
-        """
-        # Normalize audio entropy using running history
+        # combine
+        # normalize
         if audio_entropy is None:
             a_norm = 0.0
         else:
